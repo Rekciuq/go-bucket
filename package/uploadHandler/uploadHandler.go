@@ -59,7 +59,7 @@ func (h *handler) get(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "Could not create url, please try again", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

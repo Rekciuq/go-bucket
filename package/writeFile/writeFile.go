@@ -9,7 +9,7 @@ import (
 	"github.com/Rekciuq/go-bucket/package/config"
 )
 
-func ensureDir(path string) error {
+func EnsureDir(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return os.MkdirAll(path, 0755)
 	}
@@ -18,7 +18,7 @@ func ensureDir(path string) error {
 
 func WriteImage(imageId string, webpBytes []byte) (string, error) {
 
-	err := ensureDir(config.ImagesDirectory)
+	err := EnsureDir(config.ImagesDirectory)
 	if err != nil {
 		log.Fatal(err.Error())
 		return "", err

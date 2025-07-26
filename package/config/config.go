@@ -4,6 +4,8 @@ import "fmt"
 
 const DEFAULT_PORT = 6969
 
+const DATABASE_PATH = "./database/"
+
 var BASE_PATH = fmt.Sprintf("http://localhost:%d/v1", DEFAULT_PORT)
 var IMAGE_PATH = fmt.Sprintf("%s/image", BASE_PATH)
 var UPLOAD_PATH = fmt.Sprintf("%s/upload", BASE_PATH)
