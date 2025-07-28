@@ -122,7 +122,7 @@ func (h *handler) post(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		res := postVideoResponse{FileURL: fmt.Sprintf("%s/%s", config.VIDEO_PATH, urlId)}
+		res := postVideoResponse{FileURL: fmt.Sprintf("%s/%s", config.VIDEO_PATH, urlId), FileLength: int(metaData.DurationSeconds)}
 		json.NewEncoder(w).Encode(res)
 
 		err = h.uploadController.UseUrl(urlId)
