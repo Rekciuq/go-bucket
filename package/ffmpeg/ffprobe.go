@@ -24,14 +24,14 @@ type fFProbeOutput struct {
 	Format  format   `json:"format"`
 }
 
-type videoMetadata struct {
+type VideoMetadata struct {
 	Width           int
 	Height          int
 	DurationSeconds float64
 	AspectRatio     string
 }
 
-func GetVideoMetadata(filePath string) (*videoMetadata, error) {
+func GetVideoMetadata(filePath string) (*VideoMetadata, error) {
 	cmd := exec.Command("ffprobe",
 		"-v", "quiet",
 		"-print_format", "json",
@@ -60,7 +60,7 @@ func GetVideoMetadata(filePath string) (*videoMetadata, error) {
 
 	for _, stream := range probeData.Streams {
 		if stream.CodecType == "video" {
-			return &videoMetadata{
+			return &VideoMetadata{
 				Width:           stream.Width,
 				Height:          stream.Height,
 				DurationSeconds: duration,

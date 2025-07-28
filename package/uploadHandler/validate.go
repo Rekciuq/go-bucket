@@ -22,6 +22,10 @@ type postPayload struct {
 type postResponse struct {
 	FileURL string `json:"fileURL"`
 }
+type postVideoResponse struct {
+	FileURL    string `json:"fileURL"`
+	FileLength int    `json:"lengthInSec"`
+}
 
 var validate = validator.New()
 
