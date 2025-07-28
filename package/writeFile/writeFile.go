@@ -2,11 +2,9 @@ package writefile
 
 import (
 	"fmt"
-	"log"
+	"io"
+	"mime/multipart"
 	"os"
-	"path/filepath"
-
-	"github.com/Rekciuq/go-bucket/package/config"
 )
 
 func EnsureDir(path string) error {
@@ -16,22 +14,17 @@ func EnsureDir(path string) error {
 	return nil
 }
 
-func WriteImage(imageId string, webpBytes []byte) (string, error) {
-
-	err := EnsureDir(config.ImagesDirectory)
+func WriteTemporaryFile(file multipart.File, pattern string) (error, *os.File) {
+	inputFile, err := os.CreateTemp("", pattern)
 	if err != nil {
-		log.Fatal(err.Error())
-		return "", err
+		return fmt.Errorf("failed to create temp file: %w", err), nil
 	}
 
-	imageName := fmt.Sprintf("%s.%s", imageId, config.ImageFormat.WebP)
-	imagePath := filepath.Join(config.ImagesDirectory, imageName)
-
-	err = os.WriteFile(imagePath, webpBytes, 0644)
+	_, err = io.Copy(inputFile, file)
 	if err != nil {
-		return "", fmt.Errorf("failed to write file: %w", err)
+		return fmt.Errorf("failed to copy video to temp file: %w", err), nil
 	}
+	inputFile.Close()
 
-	return imagePath, nil
-
+	return nil, inputFile
 }

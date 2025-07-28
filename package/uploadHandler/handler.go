@@ -2,10 +2,8 @@ package uploadhandler
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -14,15 +12,13 @@ import (
 	ec "github.com/Rekciuq/go-bucket/package/ent-client"
 	entclient "github.com/Rekciuq/go-bucket/package/ent-client"
 	reformatfile "github.com/Rekciuq/go-bucket/package/reformatFile"
-	uploadcontroller "github.com/Rekciuq/go-bucket/package/uploadController"
 	writefile "github.com/Rekciuq/go-bucket/package/writeFile"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
 type handler struct {
 	*entclient.ClientConnection
-	*uploadcontroller.UploadController
+	*uploadController
 }
 
 func generateUUID() uuid.UUID {
@@ -34,28 +30,14 @@ func generateUUID() uuid.UUID {
 	return uuID
 }
 
-type getPayload struct {
-	URL string `json:"url"`
-}
-
-type postPayload struct {
-	UserID int `validate:"required,gt=0"`
-}
-
-type postResponse struct {
-	ImageURL string `json:"imageURL"`
-}
-
-var validate = validator.New()
-
 func (h *handler) get(w http.ResponseWriter, r *http.Request) {
 	uuID := generateUUID()
-	isExists := h.UploadController.IsAlreadyExists(uuID.String())
+	isExists := h.uploadController.IsAlreadyExists(uuID.String())
 	if isExists {
 		uuID = generateUUID()
 	}
 
-	err := h.UploadController.Create(uuID.String())
+	err := h.uploadController.Create(uuID.String())
 
 	if err != nil {
 		log.Println(err)
@@ -71,43 +53,10 @@ func (h *handler) get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-type ValidatedForm struct {
-	File    multipart.File
-	Header  *multipart.FileHeader
-	IsImage bool
-}
-
-func validateFormData(r *http.Request) (*ValidatedForm, error) {
-
-	file, handler, err := r.FormFile("file")
-	if err != nil {
-		log.Println(err)
-		return nil, errors.New("File is missing or invalid")
-	}
-
-	contentType := handler.Header.Get("Content-Type")
-
-	var isImage bool
-	if _, ok := config.ImageTypes[contentType]; ok {
-		isImage = true
-	} else if _, ok := config.VideoTypes[contentType]; ok {
-		isImage = false
-	} else {
-		file.Close()
-		return nil, fmt.Errorf("invalid file type: %s", contentType)
-	}
-
-	return &ValidatedForm{
-		File:    file,
-		Header:  handler,
-		IsImage: isImage,
-	}, nil
-}
-
 func (h *handler) post(w http.ResponseWriter, r *http.Request) {
 	urlId := strings.TrimPrefix(r.URL.Path, "/")
 
-	url, err := h.UploadController.GetUrl(urlId)
+	url, err := h.uploadController.GetUrl(urlId)
 	isExpired := url.ExpiresAt.Before(time.Now())
 
 	if err != nil || url.IsUsed {
@@ -148,14 +97,14 @@ func (h *handler) post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = h.UploadController.CreateImage(urlId, imagePath)
+		err = h.uploadController.CreateImage(urlId, imagePath)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		err = h.UploadController.UseUrl(urlId)
+		err = h.uploadController.UseUrl(urlId)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -167,11 +116,21 @@ func (h *handler) post(w http.ResponseWriter, r *http.Request) {
 		res := postResponse{ImageURL: fmt.Sprintf("%s/%s", config.IMAGE_PATH, urlId)}
 		json.NewEncoder(w).Encode(res)
 	}
+
+	if !validatedData.IsImage {
+		resolutions, err := reformatfile.ConvertToHLS(validatedData.File, fmt.Sprintf("./uploads/videos/%s", urlId))
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		log.Println(resolutions)
+
+	}
 }
 
 func UploadHandler(connection *ec.ClientConnection) *http.ServeMux {
 	router := http.NewServeMux()
-	h := handler{connection, &uploadcontroller.UploadController{Connection: connection}}
+	h := handler{connection, &uploadController{connection: connection}}
 
 	router.HandleFunc("GET /", h.get)
 	router.HandleFunc("POST /{id}", h.post)

@@ -11,11 +11,9 @@ import (
 	"strings"
 
 	ec "github.com/Rekciuq/go-bucket/package/ent-client"
-	entclient "github.com/Rekciuq/go-bucket/package/ent-client"
 )
 
 type handler struct {
-	*entclient.ClientConnection
 	*ImageController
 }
 
@@ -53,7 +51,7 @@ func (h *handler) get(w http.ResponseWriter, r *http.Request) {
 func ImageHandler(connection *ec.ClientConnection) http.Handler {
 	router := http.NewServeMux()
 
-	h := handler{connection, &ImageController{Connection: connection}}
+	h := handler{&ImageController{Connection: connection}}
 	router.HandleFunc("GET /{id}", h.get)
 
 	router.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {

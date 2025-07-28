@@ -22,11 +22,20 @@ var VideoTypes = map[string]struct{}{
 	"video/webm":      {},
 	"video/quicktime": {},
 }
+var VideoResolutions = map[string]string{
+	"1080p": "5000k",
+	"720p":  "2800k",
+	"480p":  "1400k",
+	"360p":  "800k",
+	"240p":  "400k",
+}
 
 const UPLOAD_DIRECTORY = "./uploads"
 const IMAGES_DIRECTORY = "images"
+const VIDEOS_DIRECTORY = "videos"
 
 var ImagesDirectory = fmt.Sprintf("%s/%s", UPLOAD_DIRECTORY, IMAGES_DIRECTORY)
+var VideosDirectory = fmt.Sprintf("%s/%s", UPLOAD_DIRECTORY, IMAGES_DIRECTORY)
 
 var ImageFormat = struct {
 	WebP string

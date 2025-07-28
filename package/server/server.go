@@ -13,21 +13,6 @@ import (
 	uh "github.com/Rekciuq/go-bucket/package/userHandler"
 )
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 func StartServer(ctx context.Context, client *ent.Client) *http.Server {
 	router := http.NewServeMux()
 	router.Handle("/v1/image/", http.StripPrefix("/v1/image", ih.ImageHandler(&entclient.ClientConnection{Ctx: ctx, Client: client})))
