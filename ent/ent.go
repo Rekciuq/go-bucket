@@ -15,6 +15,7 @@ import (
 	"github.com/Rekciuq/go-bucket/ent/image"
 	"github.com/Rekciuq/go-bucket/ent/url"
 	"github.com/Rekciuq/go-bucket/ent/user"
+	"github.com/Rekciuq/go-bucket/ent/video"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -78,6 +79,7 @@ func checkColumn(table, column string) error {
 			image.Table: image.ValidColumn,
 			url.Table:   url.ValidColumn,
 			user.Table:  user.ValidColumn,
+			video.Table: video.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

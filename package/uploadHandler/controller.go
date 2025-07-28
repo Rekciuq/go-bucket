@@ -48,3 +48,8 @@ func (uc *uploadController) CreateImage(id, path string) error {
 	err := uc.connection.Client.Image.Create().SetID(id).SetPath(path).Exec(uc.connection.Ctx)
 	return err
 }
+
+func (uc *uploadController) CreateVideo(id, path string) error {
+	err := uc.connection.Client.Video.Create().SetID(id).SetPath(path).Exec(uc.connection.Ctx)
+	return err
+}

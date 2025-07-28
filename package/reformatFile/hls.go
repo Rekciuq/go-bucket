@@ -14,16 +14,16 @@ import (
 	writefile "github.com/Rekciuq/go-bucket/package/writeFile"
 )
 
-func ConvertToHLS(videoFile multipart.File, outputDir string) ([]writefile.ResolutionInfo, error) {
+func ConvertToHLS(videoFile multipart.File, outputDir string) ([]writefile.ResolutionInfo, string, error) {
 	err, inputFile := writefile.WriteTemporaryFile(videoFile, "upload-*.mp4")
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer os.Remove(inputFile.Name())
 
 	mentadata, err := ffmpeg.GetVideoMetadata(inputFile.Name())
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	var targetResolutions []writefile.ResolutionInfo
@@ -57,14 +57,14 @@ func ConvertToHLS(videoFile multipart.File, outputDir string) ([]writefile.Resol
 
 	for err := range errs {
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 	}
 
-	if err := writefile.WriteMasterPlaylist(outputDir, targetResolutions); err != nil {
-		return nil, err
+	masterPlaylist, err := writefile.WriteMasterPlaylist(outputDir, targetResolutions)
+	if err != nil {
+		return nil, "", err
 	}
-
 	log.Println("HLS conversion successful.")
-	return targetResolutions, nil
+	return targetResolutions, masterPlaylist, nil
 }

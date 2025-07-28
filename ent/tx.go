@@ -18,6 +18,8 @@ type Tx struct {
 	Url *URLClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// Video is the client for interacting with the Video builders.
+	Video *VideoClient
 
 	// lazily loaded.
 	client     *Client
@@ -152,6 +154,7 @@ func (tx *Tx) init() {
 	tx.Image = NewImageClient(tx.config)
 	tx.Url = NewURLClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.Video = NewVideoClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

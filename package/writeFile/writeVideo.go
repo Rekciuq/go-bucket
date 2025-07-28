@@ -13,7 +13,7 @@ type ResolutionInfo struct {
 	Bitrate string
 }
 
-func WriteMasterPlaylist(outputDir string, resolutions []ResolutionInfo) error {
+func WriteMasterPlaylist(outputDir string, resolutions []ResolutionInfo) (string, error) {
 	masterPlaylistPath := filepath.Join(outputDir, "master.m3u8")
 	content := "#EXTM3U\n#EXT-X-VERSION:3\n"
 
@@ -29,5 +29,5 @@ func WriteMasterPlaylist(outputDir string, resolutions []ResolutionInfo) error {
 		content += fmt.Sprintf("%s/playlist.m3u8\n", resDirName)
 	}
 
-	return os.WriteFile(masterPlaylistPath, []byte(content), 0644)
+	return masterPlaylistPath, os.WriteFile(masterPlaylistPath, []byte(content), 0644)
 }

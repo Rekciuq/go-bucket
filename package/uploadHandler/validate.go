@@ -20,7 +20,7 @@ type postPayload struct {
 }
 
 type postResponse struct {
-	ImageURL string `json:"imageURL"`
+	FileURL string `json:"fileURL"`
 }
 
 var validate = validator.New()

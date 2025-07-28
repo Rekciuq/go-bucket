@@ -104,6 +104,22 @@ func (h *handler) post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		writeResponse(urlId, w, config.IMAGE_PATH)
+	} else if !validatedData.IsImage {
+		resolutions, masterPlaylist, err := reformatfile.ConvertToHLS(validatedData.File, fmt.Sprintf("./uploads/videos/%s", urlId))
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		err = h.uploadController.CreateVideo(urlId, masterPlaylist)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Could not create a video!", http.StatusInternalServerError)
+		}
+
+		writeResponse(urlId, w, config.VIDEO_PATH)
+
 		err = h.uploadController.UseUrl(urlId)
 		if err != nil {
 			log.Println(err)
@@ -111,20 +127,7 @@ func (h *handler) post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-
-		res := postResponse{ImageURL: fmt.Sprintf("%s/%s", config.IMAGE_PATH, urlId)}
-		json.NewEncoder(w).Encode(res)
-	}
-
-	if !validatedData.IsImage {
-		resolutions, err := reformatfile.ConvertToHLS(validatedData.File, fmt.Sprintf("./uploads/videos/%s", urlId))
-		if err != nil {
-			log.Println(err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
 		log.Println(resolutions)
-
 	}
 }
 
