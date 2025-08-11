@@ -11,11 +11,13 @@ import (
 	ih "github.com/Rekciuq/go-bucket/package/imageHandler"
 	uploadhandler "github.com/Rekciuq/go-bucket/package/uploadHandler"
 	uh "github.com/Rekciuq/go-bucket/package/userHandler"
+	vh "github.com/Rekciuq/go-bucket/package/videoHandler"
 )
 
 func StartServer(ctx context.Context, client *ent.Client) *http.Server {
 	router := http.NewServeMux()
 	router.Handle("/v1/image/", http.StripPrefix("/v1/image", ih.ImageHandler(&entclient.ClientConnection{Ctx: ctx, Client: client})))
+	router.Handle("/v1/video/", http.StripPrefix("/v1/video", vh.VideoHandler()))
 	router.Handle("/v1/users/", http.StripPrefix("/v1/users", uh.UserHandler(ctx, client)))
 	router.Handle("/v1/upload/", http.StripPrefix("/v1/upload", uploadhandler.UploadHandler(&entclient.ClientConnection{Ctx: ctx, Client: client})))
 	server := http.Server{
