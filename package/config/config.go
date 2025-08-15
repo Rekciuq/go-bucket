@@ -19,10 +19,19 @@ var ImageTypes = map[string]struct{}{
 }
 
 var VideoTypes = map[string]struct{}{
-	"video/mp4":       {},
-	"video/webm":      {},
-	"video/quicktime": {},
+	"video/mp4":        {},
+	"video/webm":       {},
+	"video/quicktime":  {},
+	"video/x-msvideo":  {},
+	"video/x-matroska": {},
+	"video/x-flv":      {},
+	"video/mpeg":       {},
+	"video/3gpp":       {},
+	"video/3gpp2":      {},
+	"video/x-ms-wmv":   {},
+	"video/ogg":        {},
 }
+
 var VideoResolutions = map[string]string{
 	"1080p": "5000k",
 	"720p":  "2800k",
